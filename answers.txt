@@ -1,0 +1,151 @@
+=== Question 1 ===
+# Answer below
+
+JDK stands for Java Development Kit, JRE stands for Java Runtime Environment and JVM stands for Java Virtual Machine. They fit inside one another like layers: the JDK contains the JRE, and the JRE contains the JVM.
+
+The JVM is the part that actually runs a Java program. It reads bytecode and executes it on the computer it is installed on.
+The JRE is the JVM plus the standard class libraries (things like String, ArrayList and the file and networking classes) that a program needs while it runs. If you only want to run a Java program, the JRE is enough.
+The JDK is everything in the JRE plus the developer tools, the most important being the compiler javac, as well as tools such as jar and javadoc. If you want to write Java code you need the JDK.
+
+When we write a .java file in human readable form, the compiler (javac) does not turn it into machine code for one specific computer. It turns it into bytecode, which is saved in a .class file. Bytecode is a set of instructions that is the same on every operating system. The JVM on each machine (there is a different JVM for Windows, Linux and macOS) then translates that bytecode for its own hardware. That is why Java is described as "write once, run anywhere": the same compiled .class file runs on any system that has a JVM.
+
+So the student needs to install the JDK to write Java. The JRE/JVM alone is only for running programs that someone else already compiled.
+
+
+=== Question 2 ===
+# Answer below
+
+A merge conflict happens when Git tries to combine two branches and both of them changed the same lines of the same file in different ways. Git can merge automatically when changes are in different places, but when the same lines were edited differently it cannot know which version is correct, so it stops and asks a human to decide. It does not mean the repository is broken, nothing is lost and the work from both branches is still safe.
+
+Git marks the problem area inside the file using conflict markers:
+<<<<<<< HEAD
+the code from your current branch
+=======
+the code from the branch being merged in
+>>>>>>> feature-branch
+Everything between <<<<<<< and ======= is your version, and everything between ======= and >>>>>>> is the incoming version.
+
+To resolve it:
+1. Run git status to see which files are in conflict.
+2. Open each conflicted file, read both versions (and talk to the teammate if needed) and decide what the final code should be. This might be one version, the other, or a mix of both.
+3. Delete the markers <<<<<<<, ======= and >>>>>>> so only the final code remains, then compile and run the tests to make sure it works.
+4. Use git add <file> to tell Git the conflict is resolved.
+5. Finish with git commit (or git merge --continue) and then git push.
+If it all goes wrong, git merge --abort takes you back to the state before the merge started.
+
+To reduce conflicts: commit small and often, pull from the main branch regularly (git pull) so your branch does not drift far away, keep branches short lived, and agree as a team on who is working on which files or methods.
+
+A .gitignore file is a text file that lists files and folders Git should not track, for example the target/ folder that Maven generates, the .idea folder from the IDE, and files with passwords. This keeps the repository clean and stops generated files from causing unnecessary conflicts.
+
+
+=== Question 3 ===
+# Answer below
+
+A unit test is a small piece of code that checks that one "unit" of the program works correctly. In Java a unit is usually a single method or a small class. The test calls the method with known input and checks that the result is what we expect.
+
+Checking the output by eye is slow, easy to forget and does not scale. Automated tests can be run in seconds every time the code changes, so if a "small change" breaks another feature the failing test shows it immediately, before a customer finds it. The tests also act as documentation of how a method should behave and give developers confidence to change code (refactor).
+
+JUnit is the most common testing framework for Java. Important annotations are:
+- @Test marks a method as a test that JUnit must run.
+- @BeforeEach marks a method that runs before every test, used to set up things so each test starts fresh. (@AfterEach runs after every test for clean up.)
+- @DisplayName gives the test a readable name.
+
+Assertions are the checks inside a test. If an assertion fails, the test fails. Examples are assertEquals(expected, actual), assertTrue(condition), assertFalse(condition) and assertNull(value).
+
+A good test is small and tests one thing, has a clear name, is independent of the other tests, and covers normal cases as well as edge cases such as 0, negative numbers, null, an empty string or very large values.
+
+Example for a method that adds two numbers:
+
+@Test
+@DisplayName("add(2, 3) returns 5")
+void testAdd() {
+    assertEquals(5, Calculator.add(2, 3));
+}
+
+Tests are run with Maven using the command mvn clean compile test. Maven finds the test classes in src/test/java, runs every @Test method and reports which passed and which failed.
+
+
+=== Question 4 ===
+# Answer below
+
+All three loops repeat code, they only differ in how they are written and when they are best used.
+
+for loop: for (int i = 0; i < 5; i++) { ... } has initialisation, condition and update all in one line. It is best when you know how many times you want to loop.
+
+while loop: 
+int count = 0;
+while (count < 5) {
+    System.out.println(count);
+    count++;
+}
+The condition is checked BEFORE every iteration, so if the condition is false from the start the body never runs. It is best when you do not know how many times the loop will run, for example "keep going until the user types quit".
+
+do-while loop:
+int number;
+do {
+    number = scanner.nextInt();
+} while (number < 0);
+The body runs first and the condition is checked AFTER, so a do-while always runs at least once. That is the key difference from while. It is useful for things like menus or asking for input and repeating until the input is valid.
+
+An infinite loop is a loop whose condition never becomes false, so it never stops. It usually happens by accident, for example forgetting count++ inside a while loop, or using the wrong condition or the wrong direction (i-- when the condition is i < 10).
+
+break stops the loop completely and carries on with the code after the loop. continue skips the rest of the current iteration and jumps to the next one (for example to skip even numbers).
+
+Summary: use for when the number of repetitions is known, while when it depends on a condition and may be zero times, and do-while when the code must run at least once.
+
+
+=== Question 5 ===
+# Answer below
+
+Inheritance is when a class (the subclass or child) takes on the fields and methods of another class (the superclass or parent) using the keyword extends. In the animal example, name and makeSound() are the same for all animals, so they are written once in Animal, and Dog and Cat extend it. This removes the copy and paste and means a fix in Animal fixes it for all the subclasses.
+
+Method overriding is when a subclass provides its own version of a method that it inherited, with the same name and parameters. A Dog and a Cat both make a sound but a different one. The @Override annotation tells the compiler that we mean to override, so it gives an error if we spell the method name wrong or the parameters do not match.
+
+Polymorphism means "many forms". A variable of the parent type can hold an object of any child type, and when we call an overridden method Java runs the version belonging to the actual object, not the variable type. So one list of Animals can hold dogs and cats and calling makeSound() on each gives the right sound for each.
+
+Overriding is not the same as overloading. Overriding is a subclass replacing an inherited method with the same signature (runtime polymorphism). Overloading is having several methods in the same class with the same name but different parameters (compile time).
+
+The super keyword refers to the parent class. super(name) calls the parent's constructor and super.makeSound() calls the parent's version of a method.
+
+Example:
+
+public class Animal {
+    protected String name;
+
+    public Animal(String name) {
+        this.name = name;
+    }
+
+    public void makeSound() {
+        System.out.println(name + " makes a sound");
+    }
+}
+
+public class Dog extends Animal {
+    public Dog(String name) {
+        super(name);
+    }
+
+    @Override
+    public void makeSound() {
+        System.out.println(name + " says Woof");
+    }
+}
+
+public class Cat extends Animal {
+    public Cat(String name) {
+        super(name);
+    }
+
+    @Override
+    public void makeSound() {
+        System.out.println(name + " says Meow");
+    }
+}
+
+Animal first = new Dog("Rex");
+Animal second = new Cat("Tom");
+first.makeSound();   // Rex says Woof
+second.makeSound();  // Tom says Meow
+
+Both variables are of type Animal, but Java calls the Dog and Cat versions at runtime, which is polymorphism.
